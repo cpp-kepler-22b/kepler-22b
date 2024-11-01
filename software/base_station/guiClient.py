@@ -18,6 +18,7 @@ from functools import partial
 from classes.vidServer import vidServer
 from classes.messageServer import sendCommand
 from classes.receiveMsg import receiveMessage
+from classes.readText import TextFileReader
 import cv2
 import threading
 import time
@@ -187,15 +188,9 @@ class StarFinderGUI(QMainWindow):
         self.tabWidget = QTabWidget(self)
         self.setCentralWidget(self.tabWidget)
         self.toggleMode()
-
-        ### Server Connection Popup ###
-        self.server_ip, ok = QInputDialog.getText(self, 'WebSocket Server IP', 'Enter WebSocket server IP:')
-        if ok and self.server_ip:
-            self.initUI()
-            self.start_websocket_client(self.server_ip)
-        else:
-            sys.exit()
-        
+        self.raspi_static_ip = '192.168.1.49'
+        self.initUI()
+        self.start_websocket_client(self.raspi_static_ip)
         
 
 
@@ -210,6 +205,8 @@ class StarFinderGUI(QMainWindow):
         else:
             self.setStyleSheet(self.dark_stylesheet)
         self.isDarkMode = not self.isDarkMode
+    
+    
     def toggleStarViewMode(self):
         if not self.isStarViewMode:
             self.setStyleSheet(self.star_view_stylesheet)
@@ -388,6 +385,7 @@ class StarFinderGUI(QMainWindow):
         star_view_mode_action.triggered.connect(self.toggleStarViewMode)
         view_menu.addAction(star_view_mode_action)
 
+
     def update_image(self):
         # Get a new image from the vidServer
         img = self.videoServer.getImg()
@@ -402,12 +400,15 @@ class StarFinderGUI(QMainWindow):
             pixmap = QPixmap.fromImage(q_image)
             self.videoStreamLabel.setPixmap(pixmap)
 
+
     def captureImage(self):
         image = self.get_current_video_frame()  # Replace with actual frame capture code
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{timestamp}.png"
         image.save(os.path.join(self.images_directory, filename))
         self.updateGallery()
+
+
     def createGallery(self):
         self.galleryWidget = QWidget(self)
         self.galleryLayout = QHBoxLayout(self.galleryWidget)
@@ -442,6 +443,7 @@ class StarFinderGUI(QMainWindow):
     
     
     
+
     ### Websocket Client Console ###
     def start_websocket_client(self, uri):
         self.commandServer_thread = sendCommand(uri, 65432) # Keep the ports static for easier use
@@ -453,25 +455,30 @@ class StarFinderGUI(QMainWindow):
 
     def send_message_to_server(self):
         message = self.userMessageInput.text()
-        self.commandServer_thread.sendMsg(message)
-        self.userMessageInput.clear()
-    
+        if message == "help":
+            self.__printCommands()
+        else:
+            self.commandServer_thread.sendMsg(message)
+            self.userMessageInput.clear()
     
     
     def log_to_console(self, port):
         self.receiveMessageThread = receiveMessage('', port)
-        while(1):
+        while True:
             message = self.receiveMessageThread.getMessage()
             if message is not None:
                 self.console.append(message)
             time.sleep(3)
 
-    
-    
-    
-    
-    
-    
+    def __printCommands(self):
+        msg = TextFileReader("info/terminal_help.txt")
+        msg.read_file()
+        print(msg)
+        self.console.append(msg.get_content())
+
+
+
+
     ###Star Finder Main button function###
     def find_star(self):
         star_hip_number = self.starInput.text()
@@ -499,7 +506,6 @@ class StarFinderGUI(QMainWindow):
         return ra_dec_coordinates, alt_az_coordinates
 
 
-    
     ###Star Finder Database Function###
     def lookup_star(self, hip_number, star_name=None):
         try:
