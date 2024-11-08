@@ -381,6 +381,12 @@ class StarFinderGUI(QMainWindow):
             self.starNameLabel.setText(f"Star: {star_name}")
             self.resultLabel.setText(f"RA/DEC: {ra_dec_coordinates}")
             self.altAzLabel.setText(f"Alt/Az: {alt_az_coordinates}")
+
+            msg_to_pi = f"Star: {star_name}\n"
+            msg_to_pi += f"RA/DEC: {ra_dec_coordinates}\n"
+            msg_to_pi += f"Alt/Az: {alt_az_coordinates}"
+            self.commandServer_thread.sendMsg(msg_to_pi)
+
             # asyncio.run_coroutine_threadsafe(self.websocket_thread.send_message(f"{star_name} Coordinates: {alt_az_coordinates}"), self.websocket_thread.loop)
         except ValueError:
             self.resultLabel.setText("Invalid HIP number")
