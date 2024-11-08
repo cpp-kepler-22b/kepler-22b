@@ -18,36 +18,22 @@ from functools import partial
 from classes.vidServer import vidServer
 from classes.messageServer import sendCommand
 from classes.receiveMsg import receiveMessage
+from classes.readText import TextFileReader
 import cv2
+import json
 import threading
 import time
+
+# Get all preset values
+with open('info/settings.json', 'r') as file:
+    settings = json.load(file)
+
+# Access the specific value
 
 
 
 #### Preset HIP numbers for constellations ####
-constellation_presets = {
-    'Alpha Andromedae': 677,     # Alpheratz (Alpha Andromedae)
-    'Aquarius': 106278,   # Sadalmelik (Alpha Aquarii)
-    'Aries': 9884,        # Hamal (Alpha Arietis)
-    'Cancer': 43103,      # Al Tarf (Beta Cancri)
-    'Canis Major': 32349, # Sirius (Alpha Canis Majoris)
-    'Capricornus': 107556,# Deneb Algedi (Delta Capricorni)
-    'Cassiopeia': 3179,   # Schedar (Alpha Cassiopeiae)
-    'Cygnus': 102098,     # Deneb (Alpha Cygni)
-    'Gemini': 37826,      # Pollux (Beta Geminorum)
-    'Leo': 49669,         # Regulus (Alpha Leonis)
-    'Libra': 72622,       # Zubeneschamali (Beta Librae)
-    'Lyra': 91262,        # Vega (Alpha Lyrae)
-    'Alpha Orionis': 26727,       # Betelgeuse (Alpha Orionis)
-    'Epsilon Pegasi': 113963,    # Enif (Epsilon Pegasi)
-    'Eta Piscium': 9487,       # Alpherg (Eta Piscium)
-    'Epsilon Sagittarii': 88635, # Kaus Australis (Epsilon Sagittarii)
-    'Alpha Scorpii': 80763,    # Antares (Alpha Scorpii)
-    'Alpha Tauri': 21421,      # Aldebaran (Alpha Tauri)
-    'Alpha Ursae Majoris': 54061,  # Dubhe (Alpha Ursae Majoris)
-    'Alpha Ursae Minoris': 11767,  # Polaris (Alpha Ursae Minoris)
-    'Virgo': 65474,       # Spica (Alpha Virginis)
-}
+constellation_presets = settings.get("constellation_presets")
 
 
 
@@ -61,7 +47,8 @@ class StarFinderGUI(QMainWindow):
         
         ###MainWindow###
         super().__init__()
-        
+        with open('info/settings.json', 'r') as file:
+            self.settings = json.load(file)
         self.setWindowTitle("Keppler-22b Ground Station")
         self.setGeometry(100, 100, 1200, 800)
         self.setWindowIcon(QIcon("nasa.png"))
@@ -70,132 +57,16 @@ class StarFinderGUI(QMainWindow):
         ### Stlyesheets ###
         self.isDarkMode = True  # Default to dark mode
         self.isStarViewMode = False  # Star view mode off by default
-        self.dark_stylesheet = """
-        QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog, QTabBar::tab {
-            color: white; 
-            background-color: #333; 
-            font: 14px; 
-        }
-        QPushButton { 
-            background-color: #555; 
-            color: white; 
-        }
-        QLineEdit, QTextEdit { 
-            background-color: #555; 
-            color: white; 
-        }
-        QLabel { 
-            color: #CCC; 
-        }
-        QLabel#imageLabel { /* Target the image viewer specifically */
-            border: 2px solid #AAA; /* Added a light gray border */
-            color: #CCC;
-            padding: 2px; /* Added padding inside the border */
-        }
-        QTabWidget::pane { /* The tab widget frame */
-            border-top: 2px solid #555;
-        }
-        QTabBar::tab:selected { /* The selected tab */
-            background: #777;
-            margin-top: 2px;
-            padding: 4px;
-            font-size: 14px;
-        }
-        QTabBar::tab:!selected { /* Unselected tabs */
-            background: #555;
-            margin-top: 2px;
-            padding: 4px;
-            font-size: 14px;
-        }
-        QMenu::item {
-            background-color: transparent;
-            color: white;
-        }
-        QMenu::item:selected {
-            background-color: #0078d7;
-            color: white;
-        }
-        """
-        self.light_stylesheet = """
-        QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog {
-            color: black; 
-            background-color: #FFF; 
-            font: 14px;
-        }
-        QPushButton { 
-            background-color: #DDD; 
-            color: black; 
-        }
-        QLineEdit, QTextEdit { 
-            background-color: #EEE; 
-            color: black; 
-        }
-        QLabel { 
-            color: #333; 
-        }
-        QTabBar::tab:selected { /* The selected tab */
-            background: #FFF;
-            border: 1px solid #CCC;
-            border-bottom-color: #FFF; /* Makes the bottom border invisible */
-            margin-top: 2px;
-            padding: 4px;
-            font-size: 14px;
-        }
-        QTabBar::tab:!selected { /* Unselected tabs */
-            background: #DDD;
-            border: 1px solid #CCC;
-            margin-top: 2px;
-            padding: 4px;
-            font-size: 14px;
-        }
-        QMenu::item {
-            background-color: transparent;
-            color: black;
-        }
-        QMenu::item:selected {
-            background-color: #0078d7;
-            color: white;
-        }
-        """
-        self.star_view_stylesheet = """
-        QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog {
-            background-color: #300; 
-            color: #F00; 
-            font: 14px; 
-        }
-        QPushButton { 
-            background-color: #400; 
-            color: #F00; 
-        }
-        QLineEdit, QTextEdit { 
-            background-color: #400; 
-            color: #F00; 
-        }
-        QLabel { 
-            color: #F00; 
-        }
-        QMenu::item {
-            background-color: transparent;
-            color: #F00;
-        }
-        QMenu::item:selected {
-            background-color: #700;
-            color: #FFF;
-        }
-        """
+        self.dark_stylesheet = self.settings.get("dark_stylesheet")
+        self.light_stylesheet = self.settings.get("light_stylesheet")
+        self.star_view_stylesheet = self.settings.get("starview_stylesheet")
         self.setStyleSheet(self.dark_stylesheet)
         self.tabWidget = QTabWidget(self)
         self.setCentralWidget(self.tabWidget)
         self.toggleMode()
-
-        ### Server Connection Popup ###
-        self.server_ip, ok = QInputDialog.getText(self, 'WebSocket Server IP', 'Enter WebSocket server IP:')
-        if ok and self.server_ip:
-            self.initUI()
-            self.start_websocket_client(self.server_ip)
-        else:
-            sys.exit()
-        
+        self.raspi_static_ip = '192.168.1.49'
+        self.initUI()
+        self.start_websocket_client(self.raspi_static_ip)
         
 
 
@@ -210,6 +81,8 @@ class StarFinderGUI(QMainWindow):
         else:
             self.setStyleSheet(self.dark_stylesheet)
         self.isDarkMode = not self.isDarkMode
+    
+    
     def toggleStarViewMode(self):
         if not self.isStarViewMode:
             self.setStyleSheet(self.star_view_stylesheet)
@@ -356,17 +229,7 @@ class StarFinderGUI(QMainWindow):
     def initMenuBar(self):
         menu_bar = self.menuBar()
 
-        menu_bar.setStyleSheet("""
-        QMenu::item {
-        padding: 2px 25px 2px 20px;
-        background-color: transparent;
-        border: 1px solid transparent;  # Maintain transparent border
-    }
-    QMenu::item:selected {  # Use :selected for hover and active states
-        background-color: #0078d7;  # A noticeable background color on hover
-        color: white;  # Change text color for better visibility
-    }
-    """)
+        menu_bar.setStyleSheet(settings.get("initMenu_Bar"))
 
 
         file_menu = menu_bar.addMenu('File')
@@ -388,6 +251,7 @@ class StarFinderGUI(QMainWindow):
         star_view_mode_action.triggered.connect(self.toggleStarViewMode)
         view_menu.addAction(star_view_mode_action)
 
+
     def update_image(self):
         # Get a new image from the vidServer
         img = self.videoServer.getImg()
@@ -402,12 +266,15 @@ class StarFinderGUI(QMainWindow):
             pixmap = QPixmap.fromImage(q_image)
             self.videoStreamLabel.setPixmap(pixmap)
 
+
     def captureImage(self):
         image = self.get_current_video_frame()  # Replace with actual frame capture code
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"capture_{timestamp}.png"
         image.save(os.path.join(self.images_directory, filename))
         self.updateGallery()
+
+
     def createGallery(self):
         self.galleryWidget = QWidget(self)
         self.galleryLayout = QHBoxLayout(self.galleryWidget)
@@ -442,6 +309,7 @@ class StarFinderGUI(QMainWindow):
     
     
     
+
     ### Websocket Client Console ###
     def start_websocket_client(self, uri):
         self.commandServer_thread = sendCommand(uri, 65432) # Keep the ports static for easier use
@@ -453,25 +321,30 @@ class StarFinderGUI(QMainWindow):
 
     def send_message_to_server(self):
         message = self.userMessageInput.text()
-        self.commandServer_thread.sendMsg(message)
-        self.userMessageInput.clear()
-    
+        if message == "help":
+            self.__printCommands()
+        else:
+            self.commandServer_thread.sendMsg(message)
+            self.userMessageInput.clear()
     
     
     def log_to_console(self, port):
         self.receiveMessageThread = receiveMessage('', port)
-        while(1):
+        while True:
             message = self.receiveMessageThread.getMessage()
             if message is not None:
                 self.console.append(message)
             time.sleep(3)
 
-    
-    
-    
-    
-    
-    
+    def __printCommands(self):
+        msg = TextFileReader("info/terminal_help.txt")
+        msg.read_file()
+        print(msg)
+        self.console.append(msg.get_content())
+
+
+
+
     ###Star Finder Main button function###
     def find_star(self):
         star_hip_number = self.starInput.text()
@@ -499,7 +372,6 @@ class StarFinderGUI(QMainWindow):
         return ra_dec_coordinates, alt_az_coordinates
 
 
-    
     ###Star Finder Database Function###
     def lookup_star(self, hip_number, star_name=None):
         try:
@@ -509,6 +381,12 @@ class StarFinderGUI(QMainWindow):
             self.starNameLabel.setText(f"Star: {star_name}")
             self.resultLabel.setText(f"RA/DEC: {ra_dec_coordinates}")
             self.altAzLabel.setText(f"Alt/Az: {alt_az_coordinates}")
+
+            msg_to_pi = f"Star: {star_name}\n"
+            msg_to_pi += f"RA/DEC: {ra_dec_coordinates}\n"
+            msg_to_pi += f"Alt/Az: {alt_az_coordinates}"
+            self.commandServer_thread.sendMsg(msg_to_pi)
+
             # asyncio.run_coroutine_threadsafe(self.websocket_thread.send_message(f"{star_name} Coordinates: {alt_az_coordinates}"), self.websocket_thread.loop)
         except ValueError:
             self.resultLabel.setText("Invalid HIP number")

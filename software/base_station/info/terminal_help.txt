@@ -1,0 +1,5 @@
+List of commands:
+> get info
+ - get position, direction and altitude
+> switch control
+ - switch from automatic to manual camera control 

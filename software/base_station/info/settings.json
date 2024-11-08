@@ -1,0 +1,30 @@
+{
+    "initMenu_Bar": "QMenu::item {padding: 2px 25px 2px 20px;background-color: transparent;border: 1px solid transparent;}\nQMenu::item:selected {background-color: #0078d7;color: white;}",
+    "dark_stylesheet": "QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog, QTabBar::tab {color: white; background-color: #333; font: 14px; }\nQPushButton { background-color: #555;color: white; }\nQLineEdit, QTextEdit {background-color: #555;color: white; }\nQLabel {color: #CCC; }\nQLabel#imageLabel {border: 2px solid #AAA;color: #CCC;padding: 2px;}\nQTabWidget::pane {border-top: 2px solid #555;}\nQTabBar::tab:selected {background: #777;margin-top: 2px;padding: 4px;font-size: 14px;}\nQTabBar::tab:!selected {background: #555;margin-top: 2px;padding: 4px;font-size: 14px;}\nQMenu::item {background-color: transparent;color: white;}\nQMenu::item:selected {background-color: #0078d7; color: white;}",
+    "light_stylesheet": "QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog {color: black; background-color: #FFF; font: 14px;}\nQPushButton { background-color: #DDD; color: black; }\nQLineEdit, QTextEdit { background-color: #EEE; color: black; }\nQLabel { color: #333;}\nQTabBar::tab:selected { background: #FFF;border: 1px solid #CCC;border-bottom-color: #FFF;margin-top: 2px;padding: 4px;font-size: 14px;}\nQTabBar::tab:!selected { background: #DDD;border: 1px solid #CCC;margin-top: 2px;padding: 4px;font-size: 14px;}\nQMenu::item {background-color: transparent;color: black;}\nQMenu::item:selected {background-color: #0078d7;color: white;}",
+    "starview_stylesheet": "QWidget, QLineEdit, QTextEdit, QPushButton, QLabel, QMenuBar, QMenu, QTabWidget, QDialog {background-color: #300; color: #F00; font: 14px; }\nQPushButton { background-color: #400; color: #F00; }\nQLineEdit, QTextEdit { background-color: #400; color: #F00; }\nQLabel { color: #F00; }\nQMenu::item {background-color: transparent;color: #F00;}\nQMenu::item:selected {background-color: #700;color: #FFF;",
+    "constellation_presets": {
+        "Alpha Andromedae": 677,
+        "Aquarius": 106278,
+        "Aries": 9884,        
+        "Cancer": 43103,      
+        "Canis Major": 32349, 
+        "Capricornus": 107556,
+        "Cassiopeia": 3179,   
+        "Cygnus": 102098,     
+        "Gemini": 37826,      
+        "Leo": 49669,         
+        "Libra": 72622,       
+        "Lyra": 91262,        
+        "Alpha Orionis": 26727,       
+        "Epsilon Pegasi": 113963,    
+        "Eta Piscium": 9487,       
+        "Epsilon Sagittarii": 88635, 
+        "Alpha Scorpii": 80763,    
+        "Alpha Tauri": 21421,     
+        "Alpha Ursae Majoris": 54061,  
+        "Alpha Ursae Minoris": 11767,  
+        "Virgo": 65474      
+    }
+
+}
